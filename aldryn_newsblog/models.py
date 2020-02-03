@@ -480,8 +480,9 @@ class NewsBlogLatestArticlesPlugin(PluginEditModeMixin,
             self.app_config.namespace, request)
         if self.language not in languages:
             return queryset.none()
-        queryset = queryset.translated(*languages).filter(
-            app_config=self.app_config)
+        #queryset = queryset.translated(*languages).filter(app_config=self.app_config)
+        queryset = queryset.translated(self.language).filter(app_config=self.app_config)
+
         featured_qs = featured_qs.translated(*languages).filter(
             app_config=self.app_config)
         exclude_featured = featured_qs.values_list(
