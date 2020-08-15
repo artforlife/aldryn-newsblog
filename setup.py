@@ -25,6 +25,7 @@ REQUIREMENTS = [
     'pytz',
     'six',
     'python-dateutil',
+    'django-meta>=1.7.0',
 ]
 
 # https://pypi.python.org/pypi?%3Aaction=list_classifiers

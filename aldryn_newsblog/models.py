@@ -40,6 +40,8 @@ from .cms_appconfig import NewsBlogConfig
 from .managers import RelatedManager
 from .utils import get_plugin_index_data, get_request, strip_tags
 
+from meta.models import ModelMeta
+
 
 if settings.LANGUAGES:
     LANGUAGE_CODES = [language[0] for language in settings.LANGUAGES]
@@ -66,7 +68,7 @@ SQL_IS_TRUE = {
 @python_2_unicode_compatible
 class Article(TranslatedAutoSlugifyMixin,
               TranslationHelperMixin,
-              TranslatableModel):
+              TranslatableModel, ModelMeta):
 
     # TranslatedAutoSlugifyMixin options
     slug_source_field_name = 'title'
@@ -148,6 +150,18 @@ class Article(TranslatedAutoSlugifyMixin,
     )
     tags = TaggableManager(blank=True)
 
+    # this is semantic web stuff using OpenGraph and others
+    # via Django Meta package
+    _metadata = {
+        'title': 'title',
+        'description': 'meta_description',
+        'keywords': 'get_meta_keywords',
+        'author': 'author',
+        'image': 'get_meta_featured_image',
+        'use_og': 'true',
+        'use_twitter': 'true',
+    }
+
     # Setting "symmetrical" to False since it's a bit unexpected that if you
     # set "B relates to A" you immediately have also "A relates to B". It have
     # to be forced to False because by default it's True if rel.to is "self":
@@ -165,6 +179,14 @@ class Article(TranslatedAutoSlugifyMixin,
     class Meta:
         ordering = ['-publishing_date']
 
+    def get_meta_keywords(self):
+        if self.tags:
+            return self.tags.names()
+
+    def get_meta_featured_image(self):
+        if self.featured_image:
+            return self.featured_image.url
+        
     @property
     def published(self):
         """
